@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 import org.testng.Assert;
 import pojo.AddPlace;
 import pojo.LocationClass;
@@ -36,12 +41,18 @@ public class Basics {
 				// then - validate the response
 				
 				// Before we go down to work on above principals, first we need to 
-				// access/hit to/on the baseURI. 
-		
-		RestAssured.baseURI = "https://rahulshettyacademy.com";
+				// access/hit to/on the baseURI.
+
+		// RequestSpecification Builder
+		RequestSpecification initialReqSpec = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com").addQueryParam("key", "qaclick123").setContentType(ContentType.JSON).build();
+
+		ResponseSpecification initialResSpec = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON).build();
+
+		//RestAssured.baseURI = "https://rahulshettyacademy.com";
 		
 		// Response can only be extracted as String from the server.
-		String response = given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		//String response = given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		String response = given().log().all().spec(initialReqSpec)
 		//.body(new String(Files.readAllBytes(Paths.get("C:\\Users\\prate\\IdeaProjects\\RestAssuredDummyMapsAPI\\src\\files\\AddPlace.json"))))
 				.body(addPlaceObj)
 		.when().post("/maps/api/place/add/json")
@@ -69,8 +80,9 @@ public class Basics {
 		String newAddress = "134 Barrington Palace, Lincoln";
 		
 		given().log().all()
-		.queryParam("key", "qaclick123").queryParam("place_id", placeId)
-		.header("Content-Type", "application/json")
+//		.queryParam("key", "qaclick123").queryParam("place_id", placeId)
+//		.header("Content-Type", "application/json")
+    	.spec(initialReqSpec).queryParam("place_id", placeId)
 		.body("{\r\n"
 				+ "\"place_id\":\""+placeId+"\",\r\n"
 				+ "\"address\":\""+newAddress+"\",\r\n"
@@ -79,15 +91,18 @@ public class Basics {
 		.when().put("/maps/api/place/update/json")
 		.then()
 		.log().all()
-		.assertThat().statusCode(200).body("msg", equalTo("Address successfully updated"));
+		//.assertThat().statusCode(200).body("msg", equalTo("Address successfully updated"));
+		.spec(initialResSpec).body("msg", equalTo("Address successfully updated"));
 		
 		// Get Place to validate if New Address is present in the response.
 		String getResponse = given().log().all()
-		.queryParam("key", "qaclick123").queryParam("place_id", placeId)
+		//.queryParam("key", "qaclick123").queryParam("place_id", placeId)
+		.spec(initialReqSpec).queryParam("place_id", placeId)
 		.when().get("/maps/api/place/get/json")
 		.then()
 		.log().all()
-		.assertThat().statusCode(200)
+		// .assertThat().statusCode(200)
+		.spec(initialResSpec)
 		.extract().response().asString();
 		
 		var getResponseJSON = ReUsableMethods.stringToJson(getResponse);
@@ -100,14 +115,16 @@ public class Basics {
 		
 		// Delete the Place
 		given().log().all()
-		.queryParam("key", "qaclick123")
-		.header("Content-Type", "application/json")
+		//.queryParam("key", "qaclick123")
+		//.header("Content-Type", "application/json")
+		.spec(initialReqSpec)
 		.body("{\r\n"
 				+ "    \"place_id\":\""+placeId+"\"\r\n"
 				+ "}")
 		.when().post("/maps/api/place/delete/json")
 		.then()
 		.log().all()
-		.assertThat().statusCode(200).body("status", equalTo("OK"));	
+		.spec(initialResSpec)
+		.body("status", equalTo("OK"));
 	}
 }
