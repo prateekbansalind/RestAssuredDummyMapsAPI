@@ -1,9 +1,17 @@
+import files.PayLoad;
 import io.restassured.RestAssured;
 import files.ReUsableMethods;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.testng.Assert;
+import pojo.AddPlace;
+import pojo.LocationClass;
+import pojo.TypesClass;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
@@ -11,6 +19,14 @@ import static org.hamcrest.Matchers.*;
 public class Basics {
 
 	public static void main(String[] args) throws IOException {
+
+		// Request Body
+		var locationObj = new LocationClass(-38.383494, 33.427362);
+		List<String> typeObj = new ArrayList<String>();
+		typeObj.add("Shoe Park");
+		typeObj.add("Children Park");
+		var addPlaceObj = new AddPlace(locationObj, 50, "Frontline House", "(+91) 983 893 3937", "34/1, Riccarton Street, Riccarton"
+				, typeObj, "http://google.com", "French-IN" );
 		
 		// validate if Add Place API is working as expected. 
 		
@@ -26,7 +42,8 @@ public class Basics {
 		
 		// Response can only be extracted as String from the server.
 		String response = given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
-		.body(new String(Files.readAllBytes(Paths.get("C:\\Users\\prate\\IdeaProjects\\RestAssuredDummyMapsAPI\\src\\files\\AddPlace.json"))))
+		//.body(new String(Files.readAllBytes(Paths.get("C:\\Users\\prate\\IdeaProjects\\RestAssuredDummyMapsAPI\\src\\files\\AddPlace.json"))))
+				.body(addPlaceObj)
 		.when().post("/maps/api/place/add/json")
 		.then()
 		.assertThat().statusCode(200)
