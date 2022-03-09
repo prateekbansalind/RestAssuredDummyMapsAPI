@@ -46,6 +46,7 @@ public class Basics {
 		// RequestSpecification Builder
 		RequestSpecification initialReqSpec = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com").addQueryParam("key", "qaclick123").setContentType(ContentType.JSON).build();
 
+		// ResponseSpecification Builder
 		ResponseSpecification initialResSpec = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON).build();
 
 		//RestAssured.baseURI = "https://rahulshettyacademy.com";
